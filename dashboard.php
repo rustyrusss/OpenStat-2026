@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Open Sans', sans-serif; background: #e8ecf0; }
+    body { font-family: 'Open Sans', sans-serif; background: #dfdfdf; }
 
     /* ── NAVBAR ── */
     .navbar {
@@ -24,7 +24,6 @@
     }
     .nav-links { display: flex; align-items: center; gap: 2px; }
 
-    /* FIX: nav-link hover now shows a soft pill background */
     .nav-link {
       color: #374151;
       font-size: 15px;
@@ -40,7 +39,6 @@
       background: #eff6ff;
     }
 
-    /* FIX: nav-home hover darkens slightly instead of nothing */
     .nav-home {
       background: #1a3269;
       color: #fff;
@@ -54,22 +52,52 @@
     }
     .nav-home:hover { background: #142a56; }
 
-    /* FIX: nav search is now an <a> tag, fully clickable */
-    .nav-search-btn {
+    /* ── SEARCH PILL ── */
+    .search-pill {
+      display: flex;
+      align-items: center;
       margin-left: 6px;
       background: #fff;
       border: 2px solid #d1d5db;
-      border-radius: 50%;
-      width: 38px; height: 38px;
+      border-radius: 24px;
+      height: 38px;
+      overflow: hidden;
+      transition: border-color 0.25s, width 0.35s cubic-bezier(.4,0,.2,1), box-shadow 0.25s;
+      width: 38px;
+    }
+    .search-pill.open {
+      width: 220px;
+      border-color: #1a3269;
+      box-shadow: 0 0 0 3px rgba(26,50,105,0.12);
+    }
+    .search-pill-btn {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      flex-shrink: 0;
-      text-decoration: none;
+      background: transparent;
+      border: none;
+      border-radius: 50%;
+      transition: background 0.15s;
     }
-    .nav-search-btn:hover {
-      border-color: #1a3269;
-      background: #eff6ff;
+    .search-pill-btn:hover { background: #eff6ff; }
+    .search-pill-input {
+      flex: 1;
+      min-width: 0;
+      padding: 0 10px 0 2px;
+      font-size: 14px;
+      color: #374151;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'Open Sans', sans-serif;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s 0.1s;
+    }
+    .search-pill.open .search-pill-input {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     /* ── HERO ── */
@@ -77,14 +105,13 @@
       position: relative;
       overflow: hidden;
       min-height: 280px;
-      /* FIX: layered gradient — dark navy at top fading into mid-blue, sits over the backdrop image */
       background:
         linear-gradient(
-          160deg,
-          rgba(10, 26, 110, 0.92) 0%,
-          rgba(26, 50, 105, 0.80) 40%,
-          rgba(14, 60, 140, 0.70) 70%,
-          rgba(30, 80, 160, 0.55) 100%
+          to bottom,
+          rgba(10, 26, 110, 0.95) 0%,
+          rgba(14, 40, 120, 0.85) 40%,
+          rgba(255, 255, 255, 0.6) 80%,
+          rgba(255, 255, 255, 1.00) 90%
         ),
         #0a1a6e;
     }
@@ -93,7 +120,6 @@
       inset: 0;
       width: 100%; height: 100%;
       object-fit: cover;
-      /* lower opacity so the gradient shows through cleanly */
       opacity: 0.45;
       mix-blend-mode: luminosity;
     }
@@ -103,6 +129,7 @@
       padding: 50px 24px 54px;
       text-align: center;
       color: #fff;
+      animation: heroFadeIn 0.7s cubic-bezier(.22,1,.36,1) both;
     }
     .hero-title {
       font-size: 30px;
@@ -130,6 +157,11 @@
       border-radius: 5px;
       overflow: hidden;
       box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .search-bar:focus-within {
+      box-shadow: 0 10px 36px rgba(0,0,0,0.45);
+      transform: translateY(-2px);
     }
     .search-bar-icon {
       background: #fff;
@@ -164,7 +196,7 @@
     .main-content {
       max-width: 980px;
       margin: 0 auto;
-      padding: 30px 20px 50px;
+      padding: 0px 20px 50px;
     }
     .row-two-col {
       display: grid;
@@ -175,14 +207,14 @@
 
     /* ── STAT CARDS ── */
     .stat-card {
-      background: #fff;
+      background: #fafafa;
       border-radius: 10px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.10);
-      transition: box-shadow 0.2s, transform 0.2s;
+      transition: box-shadow 0.25s, transform 0.25s;
     }
     .stat-card:hover {
-      box-shadow: 0 8px 28px rgba(0,0,0,0.14);
-      transform: translateY(-2px);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.39);
+      transform: translateY(-3px);
     }
     .card-inner { padding: 26px 28px; }
 
@@ -202,7 +234,7 @@
       flex-shrink: 0;
     }
     .sec-icon img {
-      width: 60px; height: 60px;
+      width: 65px; height: 65px;
       object-fit: contain;
     }
     .card-title {
@@ -220,13 +252,26 @@
       padding: 10px 8px;
       border-radius: 6px;
       text-decoration: none;
+      position: relative;
+      overflow: hidden;
       transition: background 0.15s;
     }
-    .stat-item:hover { background: #eff6ff; }
+    .stat-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #eff6ff;
+      border-radius: 6px;
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(.22,1,.36,1);
+    }
+    .stat-item:hover::before { transform: translateX(0); }
+    .stat-item:hover { background: transparent; }
     .row-icon {
       width: 52px; height: 52px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
+      position: relative; z-index: 1;
     }
     .row-icon img { width: 50px; height: 50px; object-fit: contain; }
     .stat-item span {
@@ -234,6 +279,7 @@
       font-weight: 600;
       color: #1f2937;
       line-height: 1.35;
+      position: relative; z-index: 1;
     }
     .stat-item span.sm { font-size: 13px; }
 
@@ -269,6 +315,10 @@
       width: 100%; height: 100%;
       object-fit: cover;
       display: block;
+      transition: transform 0.4s cubic-bezier(.22,1,.36,1);
+    }
+    .feat-card:hover .feat-img img {
+      transform: scale(1.06);
     }
     .feat-body { padding: 16px 18px; flex: 1; }
     .feat-title {
@@ -280,6 +330,22 @@
       font-size: 12px;
       color: #4b5563;
       line-height: 1.7;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes heroFadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-card {
+      opacity: 0;
+      animation: fadeUp 0.55s cubic-bezier(.22,1,.36,1) forwards;
+      animation-play-state: paused;
     }
 
     /* ── FOOTER ── */
@@ -312,12 +378,15 @@
     <a href="#" class="nav-link">Metadata</a>
     <a href="#" class="nav-link">Featured</a>
     <a href="#" class="nav-link">Contact Us</a>
-    <!-- FIX: changed from <button> to <a> so it's properly clickable/navigable -->
-    <a href="#search" class="nav-search-btn" title="Search">
-      <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="2.3">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-      </svg>
-    </a>
+
+    <div class="search-pill" id="searchPill">
+      <button class="search-pill-btn" id="searchBtn" title="Search" aria-label="Toggle search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#374151" stroke-width="2.3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+        </svg>
+      </button>
+      <input class="search-pill-input" id="searchInput" type="text" placeholder="Search for statistics…" aria-label="Search"/>
+    </div>
   </div>
 </nav>
 
@@ -329,8 +398,7 @@
     <p class="hero-desc">
       OpenSTAT is an open data platform powered by PC-Axis, a user-friendly application<br/>
       for presenting statistical data and metadata coupled with API and visualization features.<br/>
-      This system allows the PSA to share data under an open data license where data can be freely used,<br/>
-      re-used and redistributed by anyone without any restrictions other than proper source attribution.
+      This system allows the PSA to share data under an open data license where data can be freely used,re-used and redistributed by anyone without any restrictions other than proper source attribution.
     </p>
     <div class="search-bar-wrap">
       <div class="search-bar">
@@ -353,7 +421,7 @@
   <div class="row-two-col">
 
     <!-- Demographic and Social Statistics -->
-    <div class="stat-card">
+    <div class="stat-card animate-card" style="animation-delay: 0.1s;">
       <div class="card-inner">
         <div class="card-header">
           <div class="sec-icon">
@@ -377,7 +445,7 @@
     </div>
 
     <!-- Environment and Multi-Domain Statistics -->
-    <div class="stat-card">
+    <div class="stat-card animate-card" style="animation-delay: 0.2s;">
       <div class="card-inner">
         <div class="card-header">
           <div class="sec-icon">
@@ -406,7 +474,7 @@
   </div>
 
   <!-- ── ROW 2: Economic Statistics (full width) ── -->
-  <div class="stat-card" style="margin-bottom:20px;">
+  <div class="stat-card animate-card" style="margin-bottom:20px; animation-delay: 0.3s;">
     <div class="card-inner">
       <div class="card-header">
         <div class="sec-icon">
@@ -446,22 +514,25 @@
           'title'       => 'CountrySTAT Philippines',
           'title_color' => '#0d7a6b',
           'desc'        => 'CountrySTAT is a web-based information system which aims to improve access to food and agricultural statistics at regional, national and subnational levels.',
+          'delay'       => '0.4s',
         ],
         [
           'img'         => 'Img/work (2).png',
           'title'       => 'Decent Work Statistics',
           'title_color' => '#92400e',
           'desc'        => 'Decent work is integral in efforts to reduce poverty and is a key mechanism for achieving equitable, inclusive and sustainable development.',
+          'delay'       => '0.5s',
         ],
         [
           'img'         => 'Img/food.png',
           'title'       => 'Food Security Indicators',
           'title_color' => '#1e40af',
           'desc'        => 'Food security has become an essential objective in the Philippine agricultural system - a challenge to the statistical system to become an indispensable partner in attaining and maintaining food security.',
+          'delay'       => '0.6s',
         ],
       ];
       foreach($features as $feat): ?>
-      <div class="stat-card feat-card">
+      <div class="stat-card feat-card animate-card" style="animation-delay: <?= $feat['delay'] ?>;">
         <div class="feat-img">
           <img src="<?= htmlspecialchars($feat['img']) ?>" alt="<?= htmlspecialchars($feat['title']) ?>"/>
         </div>
@@ -486,6 +557,46 @@
     <a href="#">Privacy Statement</a>
   </div>
 </footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animationPlayState = 'running';
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.animate-card').forEach(el => observer.observe(el));
+
+  // ── SEARCH PILL ──
+  const pill = document.getElementById('searchPill');
+  const btn  = document.getElementById('searchBtn');
+  const inp  = document.getElementById('searchInput');
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = pill.classList.toggle('open');
+    if (isOpen) { setTimeout(() => inp.focus(), 350); }
+    else { inp.value = ''; inp.blur(); }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!pill.contains(e.target)) {
+      pill.classList.remove('open');
+      inp.value = '';
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      pill.classList.remove('open');
+      inp.value = '';
+      inp.blur();
+    }
+  });
+</script>
 
 </body>
 </html>
